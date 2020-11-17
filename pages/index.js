@@ -1,65 +1,61 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import React, { useState, useEffect } from 'react';
+import Layout from '../components/Layout';
+import Link from 'next/link';
+function fetchImageList() {
+  const url = 'https://image-mock-data.firebaseio.com/images.json';
+  return fetch(url);
+}
 
-export default function Home() {
+export default function Home(props) {
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+    <Layout>
+      <div className="ui container" style={{ marginTop: '30px' }}>
+        {props.imageList &&
+          props.imageList.map((item, index) => {
+            return (
+              <div key={index}>
+                <div className="container">
+                  <img src={item.imageURL} />
+                </div>
+                <strong>{item.title}</strong>
+                <p>{item.description}</p>
+                <Link href={`/image/${index}`}>
+                  <div className="right floated">
+                    <button
+                      className="ui pink button "
+                      style={{ width: '20%' }}
+                    >
+                      Read More...
+                    </button>
+                  </div>
+                </Link>
+              </div>
+            );
+          })}
+        <style jsx>
+          {`
+            img {
+              width: 70%;
+            }
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
+            ,
+            div {
+              display: grid;
+              margin: 5px 0px 5px;
+            }
+          `}
+        </style>
+      </div>
+    </Layout>
+  );
+}
 
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
-    </div>
-  )
+export async function getServerSideProps() {
+  const data = await fetchImageList();
+  const json = await data.json();
+  return {
+    props: {
+      imageList: json,
+    },
+  };
 }
